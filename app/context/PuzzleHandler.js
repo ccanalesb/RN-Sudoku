@@ -14,7 +14,10 @@ export const PuzzleHandler = (props) => {
   const [basePuzzle, setBasePuzzle] = useState([]);
   const [currentPuzzle, setCurrentPuzzle] = useState([]);
   const [currentGrid, setCurrentGrid] = useState([]);
-  const [currentCell, setCurrentCell] = useState(null);
+  const [currentCell, setCurrentCell] = useState({
+    cellNumber: null,
+    currentValue: null,
+  });
 
   useEffect(() => {
     (async function () {
@@ -42,7 +45,11 @@ export const PuzzleHandler = (props) => {
 
   const setValue = async (number) => {
     if (number === 'X' || number === 'x') {
-      const newCurrentPuzzle = insertInArray(currentPuzzle, currentCell, 0);
+      const newCurrentPuzzle = insertInArray(
+        currentPuzzle,
+        currentCell.cellNumber,
+        0,
+      );
       setCurrentPuzzle(newCurrentPuzzle);
       setCurrentGrid(getCurrentGrid(newCurrentPuzzle, basePuzzle));
       await AsyncStorage.setItem(
@@ -53,11 +60,20 @@ export const PuzzleHandler = (props) => {
     }
     console.log(
       'setValue',
-      isPossibleNumber(currentCell, number, currentPuzzle),
+      isPossibleNumber(currentCell.cellNumber, number, currentPuzzle),
     );
     // if (isPossibleNumber(currentCell, number, currentPuzzle)) {
-    console.log('try to put ', number, ' in ', currentPuzzle[currentCell]);
-    const newCurrentPuzzle = insertInArray(currentPuzzle, currentCell, number);
+    console.log(
+      'try to put ',
+      number,
+      ' in ',
+      currentPuzzle[currentCell.cellNumber],
+    );
+    const newCurrentPuzzle = insertInArray(
+      currentPuzzle,
+      currentCell.cellNumber,
+      number,
+    );
     setCurrentPuzzle(newCurrentPuzzle);
     setCurrentGrid(getCurrentGrid(newCurrentPuzzle, basePuzzle));
     await AsyncStorage.setItem('lastPuzzle', JSON.stringify(newCurrentPuzzle));
@@ -65,10 +81,9 @@ export const PuzzleHandler = (props) => {
     // }
   };
 
-  const selectCell = (cellNumber) => {
+  const selectCell = (cellNumber, currentValue = 0) => {
     console.log(determinePossibleValues(cellNumber, currentPuzzle));
-    setCurrentCell(cellNumber);
-    console.log('currentCell', currentCell);
+    setCurrentCell({ cellNumber, currentValue });
   };
 
   const resetPuzzle = async () => {

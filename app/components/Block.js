@@ -3,18 +3,25 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native
 import { PuzzleContext } from '../context/PuzzleHandler';
 
 const setColor = (item, currentCell) => {
-  // console.log(item.baseValue);
-  if (item.currentCell === currentCell) {
-    // console.log('HERE');
-    return '#0288D1';
-  }
-  if (!item.baseValue && item.currentCell !== currentCell) {
-    // console.log('HERE');
-    return 'white';
-  }
   if (item.baseValue) {
+    if (item.value === currentCell.currentValue) {
+      return '#FFF59D';
+    }
     return '#BDBDBD';
   }
+  if (item.value === 0) {
+    if (item.cellNumber === currentCell.cellNumber) {
+      return '#FBC02D';
+    }
+    return 'white';
+  }
+  if (item.value === currentCell.currentValue) {
+    if (item.cellNumber === currentCell.cellNumber) {
+      return '#FBC02D';
+    }
+    return '#FFF59D';
+  }
+
   return 'white';
 };
 
@@ -35,14 +42,9 @@ const Block = ({ blockData }) => {
             <TouchableOpacity
               onPress={() => {
                 console.log('press cell', item.cellNumber, item.blockCell);
-                selectCell(item.cellNumber);
-                console.log(
-                  'asdf',
-                  currentCell,
-                  item.cellNumber === currentCell,
-                );
+                selectCell(item.cellNumber, item.value);
               }}
-              disabled={item.blockCell}>
+              disabled={item.baseValue}>
               <View
                 style={[
                   styles.blockContent,

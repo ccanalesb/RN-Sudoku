@@ -39,16 +39,6 @@ export const generatePuzzle = (dificulty = 'easy') => {
   });
 };
 
-const isBaseValue = (baseValue, value) => {
-  if (value === 0) {
-    return false;
-  }
-  if (baseValue === value) {
-    return true;
-  }
-  return false;
-};
-
 const setToBlock = (gridSudoku) => {
   const [
     block0,
@@ -107,6 +97,16 @@ const setToBlock = (gridSudoku) => {
   ];
 };
 
+const isBaseValue = (baseValue, value) => {
+  if (value === 0) {
+    return false;
+  }
+  if (baseValue === value) {
+    return true;
+  }
+  return false;
+};
+
 export const getCurrentGrid = (puzzle, basePuzzle) => {
   const gridSudoku = puzzle.map((value, index) => {
     const blockNumber = returnBlock(index);
@@ -125,7 +125,7 @@ export const getCurrentGrid = (puzzle, basePuzzle) => {
 };
 
 // given a sudoku cell, returns the 3x3 block
-const returnBlock = (cell) =>
+export const returnBlock = (cell) =>
   Math.floor(returnRow(cell) / 3) * 3 + Math.floor(returnCol(cell) / 3);
 
 // given a sudoku cell, returns the row
