@@ -33,8 +33,8 @@ const Root = () => {
               fontWeight: 'bold',
             },
           }}>
-          <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Game" component={GameScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </PuzzleHandler>

@@ -3,12 +3,17 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native
 import { PuzzleContext } from '../context/PuzzleHandler';
 
 const setColor = (item, currentCell) => {
+  // console.log(item.baseValue);
+  if (item.currentCell === currentCell) {
+    // console.log('HERE');
+    return '#0288D1';
+  }
+  if (!item.baseValue && item.currentCell !== currentCell) {
+    // console.log('HERE');
+    return 'white';
+  }
   if (item.baseValue) {
     return '#BDBDBD';
-  }
-  if (parseInt(item.currentCell) === parseInt(currentCell)) {
-    console.log('HERE');
-    return '#0288D1';
   }
   return 'white';
 };

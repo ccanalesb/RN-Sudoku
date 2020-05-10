@@ -16,17 +16,17 @@ export const chunkArray = (myArray, chunk_size) => {
 };
 
 export const gridSplit = (gridData) => {
-  const [firstBlocks, secondBlocks, thirdBlocks] = [[], [], []];
-  firstBlocks.push(gridData[0]);
-  firstBlocks.push(gridData[1]);
-  firstBlocks.push(gridData[2]);
-  secondBlocks.push(gridData[3]);
-  secondBlocks.push(gridData[4]);
-  secondBlocks.push(gridData[5]);
-  thirdBlocks.push(gridData[6]);
-  thirdBlocks.push(gridData[7]);
-  thirdBlocks.push(gridData[8]);
-  return [firstBlocks, secondBlocks, thirdBlocks];
+  const [firstRow, secondRow, thirdRow] = [[], [], []];
+  firstRow.push(gridData[0]);
+  firstRow.push(gridData[1]);
+  firstRow.push(gridData[2]);
+  secondRow.push(gridData[3]);
+  secondRow.push(gridData[4]);
+  secondRow.push(gridData[5]);
+  thirdRow.push(gridData[6]);
+  thirdRow.push(gridData[7]);
+  thirdRow.push(gridData[8]);
+  return [firstRow, secondRow, thirdRow];
 };
 
 export const generatePuzzle = (dificulty = 'easy') => {
@@ -49,30 +49,90 @@ const isBaseValue = (baseValue, value) => {
   return false;
 };
 
+const setToBlock = (gridSudoku) => {
+  const [
+    block0,
+    block1,
+    block2,
+    block3,
+    block4,
+    block5,
+    block6,
+    block7,
+    block8,
+  ] = [[], [], [], [], [], [], [], [], []];
+  gridSudoku.map((cell) => {
+    switch (cell.blockNumber.toString()) {
+      case '0':
+        block0.push(cell);
+        break;
+      case '1':
+        block1.push(cell);
+        break;
+      case '2':
+        block2.push(cell);
+        break;
+      case '3':
+        block3.push(cell);
+        break;
+      case '4':
+        block4.push(cell);
+        break;
+      case '5':
+        block5.push(cell);
+        break;
+      case '6':
+        block6.push(cell);
+        break;
+      case '7':
+        block7.push(cell);
+        break;
+      case '8':
+        block8.push(cell);
+        break;
+      default:
+        break;
+    }
+  });
+  return [
+    block0,
+    block1,
+    block2,
+    block3,
+    block4,
+    block5,
+    block6,
+    block7,
+    block8,
+  ];
+};
+
 export const getCurrentGrid = (puzzle, basePuzzle) => {
   const gridSudoku = puzzle.map((value, index) => {
+    const blockNumber = returnBlock(index);
     return {
       value,
       cellNumber: index,
       blockCell: value !== 0,
       baseValue: isBaseValue(basePuzzle[index], value),
+      blockNumber,
     };
   });
 
-  const puzzleInArray = chunkArray(gridSudoku, 9);
+  const puzzleInArray = setToBlock(gridSudoku);
   const splitPuzzle = gridSplit(puzzleInArray);
   return splitPuzzle;
 };
+
+// given a sudoku cell, returns the 3x3 block
+const returnBlock = (cell) =>
+  Math.floor(returnRow(cell) / 3) * 3 + Math.floor(returnCol(cell) / 3);
 
 // given a sudoku cell, returns the row
 export const returnRow = (cell) => Math.floor(cell / 9);
 
 // given a sudoku cell, returns the column
 export const returnCol = (cell) => cell % 9;
-
-// given a sudoku cell, returns the 3x3 block
-export const returnBlock = (cell) =>
-  Math.floor(returnRow(cell) / 3) * 3 + Math.floor(returnCol(cell) / 3);
 
 // given a number, a row and a sudoku, returns true if the number can be placed in the row
 export const isPossibleRow = (number, row, sudoku) => {
@@ -281,5 +341,24 @@ export const showSudoku = (sudoku, i) => {
   }
   console.log('sudokuText', sudokuText);
   sudokuText += solved;
+  return sudokuText;
+};
+
+export const showSudoku2 = (sudoku) => {
+  var sudokuText = '\n---+---+---+---+---+---+---+---+---\n';
+  for (var i = 0; i <= 8; i++) {
+    for (var j = 0; j <= 8; j++) {
+      sudokuText += ' ';
+      sudokuText += sudoku[i * 9 + j];
+      sudokuText += ' ';
+      if (j !== 8) {
+        sudokuText += '|';
+      }
+    }
+    if (i !== 8) {
+      sudokuText += '\n---+---+---+---+---+---+---+---+---\n';
+    }
+  }
+  console.log('sudokuText', sudokuText);
   return sudokuText;
 };

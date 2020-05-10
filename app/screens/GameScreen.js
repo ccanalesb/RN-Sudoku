@@ -1,10 +1,11 @@
-import React from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import React, { useContext } from 'react';
+import { Button, SafeAreaView, StyleSheet, View } from 'react-native';
 import Grid from '../components/Grid';
 import NumberSelector from '../components/NumberSelector';
-import { PuzzleHandler } from '../context/PuzzleHandler';
+import { PuzzleContext, PuzzleHandler } from '../context/PuzzleHandler';
 
 const GameScreen = () => {
+  const { resetPuzzle } = useContext(PuzzleContext);
   return (
     <PuzzleHandler>
       <SafeAreaView>
@@ -12,6 +13,7 @@ const GameScreen = () => {
           <Grid />
         </View>
         <NumberSelector />
+        <Button title="Reiniciar" onPress={() => resetPuzzle()} />
       </SafeAreaView>
     </PuzzleHandler>
   );

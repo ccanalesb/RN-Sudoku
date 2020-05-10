@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import React, { useEffect, useState } from 'react';
-import { determinePossibleValues, generatePuzzle, getCurrentGrid, isPossibleNumber, isSolvedSudoku } from '../utils/puzzleUtils';
+import { determinePossibleValues, generatePuzzle, getCurrentGrid, isPossibleNumber, isSolvedSudoku, showSudoku2 } from '../utils/puzzleUtils';
 
 export const PuzzleContext = React.createContext();
 
@@ -23,6 +23,7 @@ export const PuzzleHandler = (props) => {
       const lastBasePuzzle =
         JSON.parse(await AsyncStorage.getItem('lastBasePuzzle')) || null;
       if (lastPuzzle !== null) {
+        console.log('here in async');
         setCurrentPuzzle(lastPuzzle);
         setBasePuzzle(lastBasePuzzle);
         setCurrentGrid(getCurrentGrid(lastPuzzle, lastBasePuzzle));
@@ -34,11 +35,12 @@ export const PuzzleHandler = (props) => {
         await AsyncStorage.setItem('lastPuzzle', JSON.stringify(puzzle));
         await AsyncStorage.setItem('lastBasePuzzle', JSON.stringify(puzzle));
       }
+      showSudoku2(lastPuzzle);
+      showSudoku2(lastBasePuzzle);
     })();
   }, []);
 
   const setValue = async (number) => {
-    console.log(typeof number);
     if (number === 'X' || number === 'x') {
       const newCurrentPuzzle = insertInArray(currentPuzzle, currentCell, 0);
       setCurrentPuzzle(newCurrentPuzzle);
@@ -69,6 +71,14 @@ export const PuzzleHandler = (props) => {
     console.log('currentCell', currentCell);
   };
 
+  const resetPuzzle = async () => {
+    const lastBasePuzzle =
+      JSON.parse(await AsyncStorage.getItem('lastBasePuzzle')) || null;
+    setCurrentPuzzle(lastBasePuzzle);
+    setCurrentGrid(getCurrentGrid(lastBasePuzzle, lastBasePuzzle));
+    await AsyncStorage.setItem('lastPuzzle', JSON.stringify(lastBasePuzzle));
+  };
+
   return (
     <PuzzleContext.Provider
       value={{
@@ -78,6 +88,7 @@ export const PuzzleHandler = (props) => {
         setCurrentCell: setCurrentCell,
         selectCell: selectCell,
         setValue: setValue,
+        resetPuzzle: resetPuzzle,
       }}>
       {props.children}
     </PuzzleContext.Provider>
