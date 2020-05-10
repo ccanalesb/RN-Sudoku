@@ -2,11 +2,11 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Block from './Block';
 
-const RowBlocks = ({ rowBlocks = [[], [], []], rowIndex }) => {
+const RowBlocks = ({ rowBlocks = [[], [], []] }) => {
   return (
     <View style={styles.rowContainer}>
-      {rowBlocks.map((blockData) => {
-        return <Block blockData={blockData} />;
+      {rowBlocks.map((blockData, index) => {
+        return <Block blockData={blockData} key={`${index}-block`} />;
       })}
     </View>
   );

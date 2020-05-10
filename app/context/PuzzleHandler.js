@@ -76,6 +76,7 @@ export const PuzzleHandler = (props) => {
     );
     setCurrentPuzzle(newCurrentPuzzle);
     setCurrentGrid(getCurrentGrid(newCurrentPuzzle, basePuzzle));
+    setCurrentCell(currentCell);
     await AsyncStorage.setItem('lastPuzzle', JSON.stringify(newCurrentPuzzle));
     console.log('Is resolved', isSolvedSudoku(newCurrentPuzzle));
     // }

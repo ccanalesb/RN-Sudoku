@@ -5,21 +5,21 @@ import { PuzzleContext } from '../context/PuzzleHandler';
 const setColor = (item, currentCell) => {
   if (item.baseValue) {
     if (item.value === currentCell.currentValue) {
-      return '#FFF59D';
+      return '#B2DFDB';
     }
-    return '#BDBDBD';
+    return '#E0E0E0';
   }
   if (item.value === 0) {
     if (item.cellNumber === currentCell.cellNumber) {
-      return '#FBC02D';
+      return '#26A69A';
     }
     return 'white';
   }
   if (item.value === currentCell.currentValue) {
     if (item.cellNumber === currentCell.cellNumber) {
-      return '#FBC02D';
+      return '#26A69A';
     }
-    return '#FFF59D';
+    return '#B2DFDB';
   }
 
   return 'white';
@@ -37,6 +37,7 @@ const Block = ({ blockData }) => {
     <View style={styles.blockContainer}>
       <FlatList
         data={newblockData}
+        scrollEnabled={false}
         renderItem={({ item, index }) => {
           return (
             <TouchableOpacity
@@ -51,7 +52,7 @@ const Block = ({ blockData }) => {
                   { backgroundColor: setColor(item, currentCell) },
                 ]}>
                 <Text key={`${item}-${index}`} style={styles.textColor}>
-                  {item.value ? item.value : 0}
+                  {item.value ? item.value : ' '}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -69,13 +70,15 @@ export default Block;
 const styles = StyleSheet.create({
   blockContainer: {
     borderColor: 'black',
-    borderWidth: 2,
+    borderWidth: 1,
   },
   blockContent: {
     margin: 2,
     borderColor: '#BDBDBD',
     borderWidth: 1,
     padding: 10,
+    width: 30,
+    height: 40,
   },
   textColor: {
     color: '#212121',
