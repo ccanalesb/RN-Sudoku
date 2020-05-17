@@ -42,7 +42,7 @@ const Block = ({ blockData }) => {
           return (
             <TouchableOpacity
               onPress={() => {
-                console.log('press cell', item.cellNumber, item.blockCell);
+                console.log('press cell', item.cellNumber);
                 selectCell(item.cellNumber, item.value);
               }}
               disabled={item.baseValue}>

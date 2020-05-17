@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import React, { useEffect, useState } from 'react';
+import React, { Component } from 'react';
+import { Alert } from 'react-native';
 import { determinePossibleValues, generatePuzzle, getCurrentGrid, isPossibleNumber, isSolvedSudoku, showSudoku2 } from '../utils/puzzleUtils';
+import { getLastBasePuzzle, getLastPuzzle, setLastBasePuzzle, setLastPuzzle } from './PuzzleUtils';
 
 export const PuzzleContext = React.createContext();
 
@@ -10,103 +12,175 @@ const insertInArray = (array, index, value) => [
   ...array.slice(index + 1),
 ];
 
-export const PuzzleHandler = (props) => {
-  const [basePuzzle, setBasePuzzle] = useState([]);
-  const [currentPuzzle, setCurrentPuzzle] = useState([]);
-  const [currentGrid, setCurrentGrid] = useState([]);
-  const [currentCell, setCurrentCell] = useState({
-    cellNumber: null,
-    currentValue: null,
-  });
+export class PuzzleHandler extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      basePuzzle: [],
+      currentPuzzle: [],
+      currentGrid: [],
+      currentCell: {
+        cellNumber: null,
+        currentValue: null,
+      },
+      currentDificult: 'easy',
+    };
+  }
 
-  useEffect(() => {
-    (async function () {
-      const lastPuzzle =
-        JSON.parse(await AsyncStorage.getItem('lastPuzzle')) || null;
-      const lastBasePuzzle =
-        JSON.parse(await AsyncStorage.getItem('lastBasePuzzle')) || null;
-      if (lastPuzzle !== null) {
-        console.log('here in async');
-        setCurrentPuzzle(lastPuzzle);
-        setBasePuzzle(lastBasePuzzle);
-        setCurrentGrid(getCurrentGrid(lastPuzzle, lastBasePuzzle));
-      } else {
-        const puzzle = [...generatePuzzle('easy')];
-        setBasePuzzle(puzzle);
-        setCurrentPuzzle(puzzle);
-        setCurrentGrid(getCurrentGrid(puzzle, puzzle));
-        await AsyncStorage.setItem('lastPuzzle', JSON.stringify(puzzle));
-        await AsyncStorage.setItem('lastBasePuzzle', JSON.stringify(puzzle));
-      }
-      showSudoku2(lastPuzzle);
-      showSudoku2(lastBasePuzzle);
-    })();
-  }, []);
+  newPuzzle = async () => {
+    const { currentDificult } = this.state;
+    const puzzle = [...generatePuzzle(currentDificult)];
+    this.setState({ basePuzzle: puzzle, currentPuzzle: puzzle });
+    await setLastPuzzle(currentDificult, puzzle);
+    await setLastBasePuzzle(currentDificult, puzzle);
+    this.setState({ currentGrid: getCurrentGrid(puzzle, puzzle) });
+    showSudoku2(puzzle);
+  };
 
-  const setValue = async (number) => {
+  checkOldPuzzle = async () => {
+    const { currentDificult } = this.state;
+    const lastPuzzle = await getLastPuzzle(currentDificult);
+    if (lastPuzzle !== null) {
+      return true;
+    }
+    return false;
+  };
+
+  loadOldPuzzle = async () => {
+    console.log('loadOldPuzzle');
+    const { currentDificult } = this.state;
+    const lastPuzzle = await getLastPuzzle(currentDificult);
+    const lastBasePuzzle = await getLastBasePuzzle(currentDificult);
+
+    this.setState({
+      currentPuzzle: lastPuzzle,
+      basePuzzle: lastBasePuzzle,
+      currentGrid: getCurrentGrid(lastPuzzle, lastBasePuzzle),
+    });
+  };
+
+  setValue = async (number) => {
+    await this.loadOldPuzzle();
+    const {
+      basePuzzle,
+      currentPuzzle,
+      currentCell,
+      currentDificult,
+    } = this.state;
     if (number === 'X' || number === 'x') {
       const newCurrentPuzzle = insertInArray(
         currentPuzzle,
         currentCell.cellNumber,
         0,
       );
-      setCurrentPuzzle(newCurrentPuzzle);
-      setCurrentGrid(getCurrentGrid(newCurrentPuzzle, basePuzzle));
+      this.setState({
+        currentPuzzle: newCurrentPuzzle,
+        currentGrid: getCurrentGrid(newCurrentPuzzle, basePuzzle),
+      });
       await AsyncStorage.setItem(
-        'lastPuzzle',
+        `lastPuzzle-${currentDificult}`,
         JSON.stringify(newCurrentPuzzle),
       );
       return;
     }
+
     console.log(
-      'setValue',
+      'isPossibleNumber',
       isPossibleNumber(currentCell.cellNumber, number, currentPuzzle),
     );
-    // if (isPossibleNumber(currentCell, number, currentPuzzle)) {
-    console.log(
-      'try to put ',
-      number,
-      ' in ',
-      currentPuzzle[currentCell.cellNumber],
-    );
+
     const newCurrentPuzzle = insertInArray(
       currentPuzzle,
       currentCell.cellNumber,
       number,
     );
-    setCurrentPuzzle(newCurrentPuzzle);
-    setCurrentGrid(getCurrentGrid(newCurrentPuzzle, basePuzzle));
-    setCurrentCell(currentCell);
-    await AsyncStorage.setItem('lastPuzzle', JSON.stringify(newCurrentPuzzle));
+
+    this.setState({
+      currentPuzzle: newCurrentPuzzle,
+      currentGrid: getCurrentGrid(newCurrentPuzzle, basePuzzle),
+      currentCell: currentCell,
+    });
+    await setLastPuzzle(currentDificult, newCurrentPuzzle);
     console.log('Is resolved', isSolvedSudoku(newCurrentPuzzle));
+    await this.loadOldPuzzle();
     // }
   };
 
-  const selectCell = (cellNumber, currentValue = 0) => {
+  selectCell = async (cellNumber, currentValue = 0) => {
+    await this.loadOldPuzzle();
+    const { currentPuzzle, currentCell, currentDificult } = this.state;
+    console.log(
+      'setValue',
+      currentPuzzle.length,
+      (await getLastPuzzle(currentDificult)).length,
+    );
     console.log(determinePossibleValues(cellNumber, currentPuzzle));
-    setCurrentCell({ cellNumber, currentValue });
+    this.setState({ currentCell: { cellNumber, currentValue } }, () =>
+      console.log(this.state.currentCell),
+    );
+    await this.loadOldPuzzle();
   };
 
-  const resetPuzzle = async () => {
-    const lastBasePuzzle =
-      JSON.parse(await AsyncStorage.getItem('lastBasePuzzle')) || null;
-    setCurrentPuzzle(lastBasePuzzle);
-    setCurrentGrid(getCurrentGrid(lastBasePuzzle, lastBasePuzzle));
-    await AsyncStorage.setItem('lastPuzzle', JSON.stringify(lastBasePuzzle));
+  resetPuzzle = async () => {
+    const { currentDificult } = this.state;
+    const lastBasePuzzle = await getLastBasePuzzle(currentDificult);
+
+    this.setState({
+      currentPuzzle: lastBasePuzzle,
+      currentGrid: getCurrentGrid(lastBasePuzzle, lastBasePuzzle),
+    });
+
+    await setLastPuzzle(currentDificult, lastBasePuzzle);
   };
 
-  return (
-    <PuzzleContext.Provider
-      value={{
-        currentPuzzle: currentPuzzle,
-        currentGrid: currentGrid,
-        currentCell: currentCell,
-        setCurrentCell: setCurrentCell,
-        selectCell: selectCell,
-        setValue: setValue,
-        resetPuzzle: resetPuzzle,
-      }}>
-      {props.children}
-    </PuzzleContext.Provider>
-  );
-};
+  loadOrCreatePuzzle = async (dificult, navigation) => {
+    this.setState({
+      currentDificult: dificult,
+    });
+    if (await this.checkOldPuzzle()) {
+      Alert.alert('Existe una partida antigua', '¿Desea cargar el anterior?', [
+        {
+          text: 'Cargar la antigua',
+          onPress: async () => {
+            console.log('old');
+            await this.loadOldPuzzle();
+            navigation.navigate('Game');
+          },
+        },
+        {
+          text: 'Deseo una nueva',
+          onPress: async () => {
+            console.log('new');
+            await this.newPuzzle();
+            navigation.navigate('Game');
+          },
+          style: 'cancel',
+        },
+      ]);
+    } else {
+      console.log('else');
+      await this.newPuzzle();
+      navigation.navigate('Game');
+    }
+  };
+
+  render() {
+    const { currentPuzzle, currentGrid, currentCell } = this.state;
+    const { children } = this.props;
+    return (
+      <PuzzleContext.Provider
+        value={{
+          currentPuzzle: currentPuzzle,
+          currentGrid: currentGrid,
+          currentCell: currentCell,
+          setCurrentCell: this.setCurrentCell,
+          selectCell: this.selectCell,
+          setValue: this.setValue,
+          resetPuzzle: this.resetPuzzle,
+          loadOrCreatePuzzle: this.loadOrCreatePuzzle,
+        }}>
+        {children}
+      </PuzzleContext.Provider>
+    );
+  }
+}

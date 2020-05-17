@@ -5,12 +5,12 @@ import NumberSelector from '../components/NumberSelector';
 import { PuzzleContext, PuzzleHandler } from '../context/PuzzleHandler';
 
 const GameScreen = () => {
-  const { resetPuzzle } = useContext(PuzzleContext);
+  const { resetPuzzle, currentGrid } = useContext(PuzzleContext);
   return (
     <PuzzleHandler>
       <SafeAreaView>
         <View style={styles.wrapper}>
-          <Grid />
+          <Grid currentGrid={currentGrid} />
         </View>
         <NumberSelector />
         <Button title="Reiniciar" onPress={() => resetPuzzle()} />

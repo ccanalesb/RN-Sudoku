@@ -1,22 +1,15 @@
-import React, { useContext } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { PuzzleContext } from '../context/PuzzleHandler';
+import React from 'react';
+import { View } from 'react-native';
 import RowBlocks from './RowBlocks';
 
-const Grid = () => {
-  const { currentGrid } = useContext(PuzzleContext);
-  if (currentGrid === []) {
-    return null;
-  }
+const Grid = ({ currentGrid }) => {
   return (
     <View>
-      {currentGrid.map((rowData) => (
-        <RowBlocks rowBlocks={rowData} />
+      {currentGrid.map((rowData, index) => (
+        <RowBlocks rowBlocks={rowData} key={`${index}-row`} />
       ))}
     </View>
   );
 };
 
 export default Grid;
-
-const styles = StyleSheet.create({});

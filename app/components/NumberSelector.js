@@ -1,14 +1,12 @@
 import React, { useContext } from 'react';
-import { Button, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Chip } from 'react-native-paper';
 import { PuzzleContext } from '../context/PuzzleHandler';
 
 const NumberSelectorButton = ({ value, setValue }) => (
-  <Button
-    style={styles.button}
-    title={String(value)}
-    onPress={() => setValue(value)}
-    color="black"
-  />
+  <Chip onPress={() => setValue(value)} mode="outlined">
+    {String(value)}
+  </Chip>
 );
 
 const NumberSelector = () => {
@@ -17,13 +15,25 @@ const NumberSelector = () => {
     <View style={styles.content}>
       <View style={styles.firstRow}>
         {[1, 2, 3, 4, 5].map((value) => {
-          return <NumberSelectorButton value={value} setValue={setValue} />;
+          return (
+            <NumberSelectorButton
+              value={value}
+              setValue={setValue}
+              key={value}
+            />
+          );
         })}
       </View>
       <View style={styles.dividerStyle} />
       <View style={styles.secondRow}>
         {[6, 7, 8, 9, 'X'].map((value) => {
-          return <NumberSelectorButton value={value} setValue={setValue} />;
+          return (
+            <NumberSelectorButton
+              value={value}
+              setValue={setValue}
+              key={value}
+            />
+          );
         })}
       </View>
     </View>
