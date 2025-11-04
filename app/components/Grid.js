@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import RowBlocks from './RowBlocks';
 
-const Grid = ({ currentGrid }) => {
+const Grid = ({ currentGrid = [] }) => {
   return (
     <View>
       {currentGrid.map((rowData, index) => (
